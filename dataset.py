@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 from converter import ext_nmat_to_pr, ext_nmat_to_mel_pr, \
     augment_pr, augment_mel_pr, pr_to_onehot_pr, piano_roll_to_target, \
     target_to_3dtarget, expand_chord
+import platform
 
 
 DATA_PATH = os.path.join('data', 'POP09-PIANOROLL-4-bin-quantization')
@@ -219,12 +220,19 @@ def collect_data_fns():
     print('The folder contains %d .npz files.' % len(files))
     df = pd.read_excel(INDEX_FILE_PATH)
     for file in files:
-        song_id = file.split('/')[-1][0: 3]
+        if platform.system() == "Windows":
+            song_id = file.split('\\')[-1][0: 3]
+        else:
+            song_id = file.split('/')[-1][0: 3]
+        #print(song_id)
         meta_data = df[df.song_id == int(song_id)]
         num_beats = meta_data.num_beats_per_measure.values[0]
         if int(num_beats) == 2:
             valid_files.append(file)
     print('Selected %d files, all are in duple meter.' % len(valid_files))
+    #import pickle
+    #with open('data/ind.pkl', 'wb') as f:
+    #    pickle.dump(valid_files, f)
     return valid_files
 
 
@@ -265,7 +273,7 @@ def wrap_dataset(fns, ids, shift_low, shift_high, num_bar=8,
 def prepare_dataset(seed, bs_train, bs_val,
                     portion=8, shift_low=-6, shift_high=5, num_bar=2,
                     contain_chord=False, random_train=True, random_val=False):
-    fns = collect_data_fns()
+    #fns = collect_data_fns()
     import pickle
     with open('data/ind.pkl', 'rb') as f:
         fns = pickle.load(f)

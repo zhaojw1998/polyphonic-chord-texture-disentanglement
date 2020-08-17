@@ -132,9 +132,12 @@ class TrainingInterface:
         epoch_loss_dic = self._init_loss_dic()
 
         for i, batch in enumerate(self.data_loaders.train_loader):
+            #print(len(batch))
             inputs = self._batch_to_inputs(batch)
+            #print(type(input))
             self.opt_scheduler.optimizer_zero_grad()
             input_params = self.param_scheduler.step()
+            #print(input_params.keys())
             outputs = self.model('train', *inputs, **input_params)
             outputs = self._sum_parallel_loss(outputs)
             loss = outputs[0]
